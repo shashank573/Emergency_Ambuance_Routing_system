@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/handover")
 public class HandoverController {
+
     private final HandoverService handoverService;
 
     public HandoverController(HandoverService handoverService) {
@@ -23,12 +24,16 @@ public class HandoverController {
     }
 
     @PostMapping
-    public ResponseEntity<PatientHandover> create(@Valid @RequestBody HandoverRequestDto requestDto) {
+    public ResponseEntity<PatientHandover> create(
+        @Valid @RequestBody HandoverRequestDto requestDto
+    ) {
         return ResponseEntity.ok(handoverService.create(requestDto));
     }
 
     @GetMapping("/{hospitalId}")
-    public ResponseEntity<List<PatientHandover>> getByHospital(@PathVariable Long hospitalId) {
+    public ResponseEntity<List<PatientHandover>> getByHospital(
+        @PathVariable Long hospitalId
+    ) {
         return ResponseEntity.ok(handoverService.getByHospital(hospitalId));
     }
 }

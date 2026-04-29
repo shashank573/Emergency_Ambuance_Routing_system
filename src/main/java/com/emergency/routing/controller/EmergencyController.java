@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/emergency")
 public class EmergencyController {
+
     private final EmergencyService emergencyService;
 
     public EmergencyController(EmergencyService emergencyService) {
@@ -23,8 +24,12 @@ public class EmergencyController {
     }
 
     @PostMapping("/request")
-    public ResponseEntity<EmergencyResponseDto> requestEmergency(@Valid @RequestBody EmergencyRequestDto requestDto) {
-        return ResponseEntity.ok(emergencyService.handleEmergencyRequest(requestDto));
+    public ResponseEntity<EmergencyResponseDto> requestEmergency(
+        @Valid @RequestBody EmergencyRequestDto requestDto
+    ) {
+        return ResponseEntity.ok(
+            emergencyService.handleEmergencyRequest(requestDto)
+        );
     }
 
     @GetMapping("/status/{id}")

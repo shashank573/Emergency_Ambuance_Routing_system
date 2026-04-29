@@ -10,10 +10,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AmbulanceService {
+
     private final AmbulanceRepository ambulanceRepository;
     private final DistanceUtil distanceUtil;
 
-    public AmbulanceService(AmbulanceRepository ambulanceRepository, DistanceUtil distanceUtil) {
+    public AmbulanceService(
+        AmbulanceRepository ambulanceRepository,
+        DistanceUtil distanceUtil
+    ) {
         this.ambulanceRepository = ambulanceRepository;
         this.distanceUtil = distanceUtil;
     }
@@ -22,25 +26,46 @@ public class AmbulanceService {
         return ambulanceRepository.findAll();
     }
 
-    public Ambulance getNearestAvailableAmbulance(double latitude, double longitude) {
-        // Linear searching through available ambulances.
-        return ambulanceRepository.findByStatus(AmbulanceStatus.AVAILABLE)
-                .stream()
-                .min(Comparator.comparingDouble(a ->
-                        distanceUtil.haversineKm(a.getLatitude(), a.getLongitude(), latitude, longitude)))
-                .orElseThrow(() -> new IllegalStateException("No available ambulance right now"));
+    public Ambulance getNearestAvailableAmbulance(
+        double latitude,
+        double longitude
+    ) {
+        return ambulanceRepository
+            .findByStatus(AmbulanceStatus.AVAILABLE)
+            .stream()
+            .min(
+                Comparator.comparingDouble(a ->
+                    distanceUtil.haversineKm(
+                        a.getLatitude(),
+                        a.getLongitude(),
+                        latitude,
+                        longitude
+                    )
+                )
+            )
+            .orElseThrow(() ->
+                new IllegalStateException("No available ambulance right now")
+            );
     }
 
     public Ambulance updateStatus(Long ambulanceId, AmbulanceStatus status) {
-        Ambulance ambulance = ambulanceRepository.findById(ambulanceId)
-                .orElseThrow(() -> new IllegalArgumentException("Ambulance not found"));
+        Ambulance ambulance = ambulanceRepository
+            .findById(ambulanceId)
+            .orElseThrow(() ->
+                new IllegalArgumentException("Ambulance not found")
+            );
         ambulance.setStatus(status);
         return ambulanceRepository.save(ambulance);
     }
 
     public Ambulance updateStatusByCode(String code, AmbulanceStatus status) {
-        Ambulance ambulance = ambulanceRepository.findByCode(code)
-                .orElseThrow(() -> new IllegalArgumentException("Ambulance strict Code not found in database"));
+        Ambulance ambulance = ambulanceRepository
+            .findByCode(code)
+            .orElseThrow(() ->
+                new IllegalArgumentException(
+                    "Ambulance strict Code not found in database"
+                )
+            );
         ambulance.setStatus(status);
         return ambulanceRepository.save(ambulance);
     }

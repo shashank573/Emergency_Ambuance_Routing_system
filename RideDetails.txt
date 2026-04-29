@@ -1,0 +1,21 @@
+Ride for Patient: swarnim
+Rider Name: Vikram Rathore
+Source: Sultanpur Majra, Rohini Tehsil, North West Delhi, Delhi, 110083, India
+Destination: Deep Chand Bandhu
+Total Time: 1m 11s
+Cost: ₹997
+--------------------------------------------------
+Ride for Patient: manali
+Rider Name: Vikram Rathore
+Source: Sardar Patel Marg, Malcha, Chanakya Puri Tehsil, New Delhi, Delhi, 110021, India
+Destination: Ram Manohar Lohia Hospital
+Total Time: 1m 16s
+Cost: ₹614
+--------------------------------------------------
+Ride for Patient: malik
+Rider Name: Vikram Rathore
+Source: Sardar Patel Marg, Malcha, Chanakya Puri Tehsil, New Delhi, Delhi, 110021, India
+Destination: Sir Ganga Ram
+Total Time: 4m 7s
+Cost: ₹769
+--------------------------------------------------

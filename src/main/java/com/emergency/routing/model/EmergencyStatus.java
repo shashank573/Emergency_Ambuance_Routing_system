@@ -7,5 +7,5 @@ public enum EmergencyStatus {
     REACHED_PATIENT,
     EN_ROUTE_TO_HOSPITAL,
     REACHED_HOSPITAL,
-    COMPLETED
+    COMPLETED,
 }

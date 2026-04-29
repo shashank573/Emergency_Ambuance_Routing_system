@@ -5,5 +5,5 @@ public enum Specialization {
     TRAUMA,
     PREGNANCY,
     GENERAL,
-    NEURO
+    NEURO,
 }

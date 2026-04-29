@@ -10,9 +10,18 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class GraphRoutingUtil {
-    public List<CoordinateDto> dijkstraShortestPath(List<CoordinateDto> nodes, int start, int target, DistanceUtil distanceUtil) {
+
+    public List<CoordinateDto> dijkstraShortestPath(
+        List<CoordinateDto> nodes,
+        int start,
+        int target,
+        DistanceUtil distanceUtil
+    ) {
         int n = nodes.size();
-        Map<Integer, List<Edge>> graph = buildCompleteGraph(nodes, distanceUtil);
+        Map<Integer, List<Edge>> graph = buildCompleteGraph(
+            nodes,
+            distanceUtil
+        );
         double[] dist = new double[n];
         int[] parent = new int[n];
         boolean[] visited = new boolean[n];
@@ -23,7 +32,9 @@ public class GraphRoutingUtil {
         }
         dist[start] = 0;
 
-        PriorityQueue<NodeDist> pq = new PriorityQueue<>((a, b) -> Double.compare(a.dist, b.dist));
+        PriorityQueue<NodeDist> pq = new PriorityQueue<>((a, b) ->
+            Double.compare(a.dist, b.dist)
+        );
         pq.offer(new NodeDist(start, 0));
 
         while (!pq.isEmpty()) {
@@ -54,7 +65,10 @@ public class GraphRoutingUtil {
         return path;
     }
 
-    private Map<Integer, List<Edge>> buildCompleteGraph(List<CoordinateDto> nodes, DistanceUtil distanceUtil) {
+    private Map<Integer, List<Edge>> buildCompleteGraph(
+        List<CoordinateDto> nodes,
+        DistanceUtil distanceUtil
+    ) {
         Map<Integer, List<Edge>> graph = new HashMap<>();
         for (int i = 0; i < nodes.size(); i++) {
             graph.putIfAbsent(i, new ArrayList<>());
@@ -63,14 +77,18 @@ public class GraphRoutingUtil {
                     continue;
                 }
                 double weight = distanceUtil.haversineKm(
-                        nodes.get(i).getLatitude(), nodes.get(i).getLongitude(),
-                        nodes.get(j).getLatitude(), nodes.get(j).getLongitude());
+                    nodes.get(i).getLatitude(),
+                    nodes.get(i).getLongitude(),
+                    nodes.get(j).getLatitude(),
+                    nodes.get(j).getLongitude()
+                );
                 graph.get(i).add(new Edge(j, weight));
             }
         }
         return graph;
     }
 
-    private record Edge(int to, double weight) { }
-    private record NodeDist(int node, double dist) { }
+    private record Edge(int to, double weight) {}
+
+    private record NodeDist(int node, double dist) {}
 }

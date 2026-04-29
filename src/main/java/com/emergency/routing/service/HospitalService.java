@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class HospitalService {
+
     private final HospitalRepository hospitalRepository;
 
     public HospitalService(HospitalRepository hospitalRepository) {
@@ -19,12 +20,18 @@ public class HospitalService {
     }
 
     public List<Hospital> getAvailableHospitals(Specialization specialization) {
-        return hospitalRepository.findBySpecializationAndAvailableBedsGreaterThan(specialization, 0);
+        return hospitalRepository.findBySpecializationAndAvailableBedsGreaterThan(
+            specialization,
+            0
+        );
     }
 
     public Hospital updateBeds(Long hospitalId, int availableBeds) {
-        Hospital hospital = hospitalRepository.findById(hospitalId)
-                .orElseThrow(() -> new IllegalArgumentException("Hospital not found"));
+        Hospital hospital = hospitalRepository
+            .findById(hospitalId)
+            .orElseThrow(() ->
+                new IllegalArgumentException("Hospital not found")
+            );
         hospital.setAvailableBeds(availableBeds);
         return hospitalRepository.save(hospital);
     }
@@ -45,7 +52,9 @@ public class HospitalService {
             throw new IllegalArgumentException("Hospital ID already exists.");
         }
         if (hospitalRepository.existsByName(hospital.getName())) {
-            throw new IllegalArgumentException("Hospital with this Name already exists. Please use unique details.");
+            throw new IllegalArgumentException(
+                "Hospital with this Name already exists. Please use unique details."
+            );
         }
         if (hospital.getAvailableBeds() < 0) {
             throw new IllegalArgumentException("Beds must be non-negative.");

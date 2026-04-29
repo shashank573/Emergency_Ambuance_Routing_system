@@ -1,0 +1,18 @@
+Handover ID: 2
+Patient: swarnim, Age: 20
+Admitted By: shashank (8627351832)
+Hospital ID: 16 | Ambulance ID: 1
+Status: COMPLETED
+--------------------------------------------------
+Handover ID: 1
+Patient: manali, Age: 19
+Admitted By: ishu (8668273495)
+Hospital ID: 3 | Ambulance ID: 2
+Status: COMPLETED
+--------------------------------------------------
+Handover ID: 1
+Patient: malik, Age: 32
+Admitted By: jatin (7654865478)
+Hospital ID: 12 | Ambulance ID: 2
+Status: COMPLETED
+

@@ -1,178 +1,613 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Emergency Ambulance Routing System</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="./style.css?v=3" />
-</head>
-<body>
-  <header>
-    <h1>Emergency Ambulance Routing System</h1>
-    <p>Live request, route, and admin management dashboard</p>
-  </header>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>City Rescue Dispatch Portal</title>
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        />
+        <link rel="stylesheet" href="./style.css?v=4" />
+    </head>
+    <body>
+        <header>
+            <h1>City Rescue Dispatch Portal</h1>
+            <p>Live request, route, and admin management dashboard</p>
+        </header>
 
-  <main class="container">
-    <section class="left-panel">
-      <div class="card">
-        <h2>Emergency Request</h2>
-        <p>Click a location, confirm address, then dispatch ambulance.</p>
-        <div class="field">Selected: <span id="selectedLocation">Not selected</span></div>
-        <div class="field">Address: <span id="selectedAddress">Not fetched</span></div>
-        <button id="confirmAddressBtn" type="button">Confirm Address</button>
-        <label>Severity</label>
-        <select id="severity">
-          <option value="LOW">LOW</option>
-          <option value="MEDIUM">MEDIUM</option>
-          <option value="CRITICAL">CRITICAL</option>
-        </select>
-        <label>Required Specialization</label>
-        <select id="specialization">
-          <option value="GENERAL">GENERAL</option>
-          <option value="HEART">HEART</option>
-          <option value="TRAUMA">TRAUMA</option>
-          <option value="PREGNANCY">PREGNANCY</option>
-          <option value="NEURO">NEURO</option>
-        </select>
-        <label>Hospital Choice</label>
-        <select id="hospitalPreference">
-          <option value="ANY">ANY</option>
-          <option value="GOVERNMENT">GOVERNMENT</option>
-          <option value="PRIVATE">PRIVATE</option>
-        </select>
-        <label>Route Choice</label>
-        <select id="routePreference">
-          <option value="FASTEST">FASTEST</option>
-          <option value="SHORTEST">SHORTEST</option>
-          <option value="ALTERNATIVE">ALTERNATIVE</option>
-        </select>
-        <button id="requestBtn" disabled>Dispatch Ambulance</button>
-        <div id="requestResult"></div>
-        <div id="simulationPanel" style="display: none; margin-top: 15px; padding: 12px; background: #eef2ff; border-radius: 8px; border: 1px solid #c7d2fe;">
-          <div id="simStatusText" style="font-weight: 600; color: #1e40af; margin-bottom: 8px; font-size: 14px;">Initializing...</div>
-          <progress id="simProgressBar" value="0" max="100" style="width: 100%; height: 10px;"></progress>
-          <div style="display: flex; justify-content: space-between; font-size: 12px; color: #475569; margin-top: 4px;">
-            <span>Time: <span id="simTimeElapsed">0</span>s</span>
-            <span>Est. Arrival: <span id="simCountdown">-</span>s</span>
-          </div>
+        <main class="container">
+            <section class="left-panel">
+                <div class="card">
+                    <h2>Request Emergency Assistance</h2>
+                    <p>
+                        Please pinpoint the patient's exact location on the map
+                        to get started.
+                    </p>
+                    <div class="field">
+                        Selected:
+                        <span id="selectedLocation">Not selected</span>
+                    </div>
+                    <div class="field">
+                        Address: <span id="selectedAddress">Not fetched</span>
+                    </div>
+                    <button id="confirmAddressBtn" type="button">
+                        Confirm Patient Location
+                    </button>
+                    <label>Severity</label>
+                    <select id="severity">
+                        <option value="LOW">LOW</option>
+                        <option value="MEDIUM">MEDIUM</option>
+                        <option value="CRITICAL">CRITICAL</option>
+                    </select>
+                    <label>Required Specialization</label>
+                    <select id="specialization">
+                        <option value="GENERAL">GENERAL</option>
+                        <option value="HEART">HEART</option>
+                        <option value="TRAUMA">TRAUMA</option>
+                        <option value="PREGNANCY">PREGNANCY</option>
+                        <option value="NEURO">NEURO</option>
+                    </select>
+                    <label>Preferred Hospital Type</label>
+                    <select id="hospitalPreference">
+                        <option value="ANY">ANY</option>
+                        <option value="GOVERNMENT">GOVERNMENT</option>
+                        <option value="PRIVATE">PRIVATE</option>
+                    </select>
+                    <label>Routing Priority</label>
+                    <select id="routePreference">
+                        <option value="FASTEST">FASTEST</option>
+                        <option value="SHORTEST">SHORTEST</option>
+                        <option value="ALTERNATIVE">ALTERNATIVE</option>
+                    </select>
+                    <button id="requestBtn" disabled>
+                        Send Help Now (Dispatch)
+                    </button>
+                    <div id="requestResult"></div>
+                    <div
+                        id="simulationPanel"
+                        style="
+                            display: none;
+                            margin-top: 15px;
+                            padding: 12px;
+                            background: #eef2ff;
+                            border-radius: 8px;
+                            border: 1px solid #c7d2fe;
+                        "
+                    >
+                        <div
+                            id="simStatusText"
+                            style="
+                                font-weight: 600;
+                                color: #1e40af;
+                                margin-bottom: 8px;
+                                font-size: 14px;
+                            "
+                        >
+                            Initializing...
+                        </div>
+                        <progress
+                            id="simProgressBar"
+                            value="0"
+                            max="100"
+                            style="width: 100%; height: 10px"
+                        ></progress>
+                        <div
+                            style="
+                                display: flex;
+                                justify-content: space-between;
+                                font-size: 12px;
+                                color: #475569;
+                                margin-top: 4px;
+                            "
+                        >
+                            <span
+                                >Time: <span id="simTimeElapsed">0</span>s</span
+                            >
+                            <span
+                                >Est. Arrival:
+                                <span id="simCountdown">-</span>s</span
+                            >
+                        </div>
+
+                        <div
+                            class="rider-info-card"
+                            id="riderInfoCard"
+                            style="display: none"
+                        >
+                            <div class="rider-details">
+                                <div class="rider-avatar">👨🏽‍✈️</div>
+                                <div class="rider-text">
+                                    <h4 id="liveRiderName">Loading...</h4>
+                                    <p id="liveRiderPhone">Loading...</p>
+                                </div>
+                            </div>
+                            <a href="#" id="callRiderBtn" class="call-btn"
+                                >📞 Call</a
+                            >
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="map-panel">
+                <div id="map"></div>
+            </section>
+
+
+            <div class="right-panel-trigger" id="rightPanelTrigger"></div>
+
+            <section class="right-panel" id="rightPanel">
+                <div class="card">
+                    <h2>Live Network Dashboard</h2>
+                    <div class="stats">
+                        <div class="stat">
+                            <span>Total Hospitals</span
+                            ><strong id="totalHospitals">-</strong>
+                        </div>
+                        <div class="stat">
+                            <span>Hospitals With Beds</span
+                            ><strong id="hospitalsWithBeds">-</strong>
+                        </div>
+                        <div class="stat">
+                            <span>Available Ambulances</span
+                            ><strong id="availableAmbulances">-</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Update Hospital Capacity</h2>
+                    <input
+                        id="hospitalIdInput"
+                        type="number"
+                        placeholder="Hospital ID"
+                    />
+                    <input
+                        id="bedsInput"
+                        type="number"
+                        placeholder="Available Beds"
+                    />
+                    <button id="updateBedsBtn">Update Beds</button>
+                </div>
+
+                <div class="card" id="addHospitalCard">
+                    <h2>Register Healthcare Center</h2>
+                    <input
+                        id="newHospitalId"
+                        type="number"
+                        placeholder="Hospital ID"
+                        required
+                    />
+                    <input
+                        id="newHospitalName"
+                        type="text"
+                        placeholder="Hospital Name"
+                        required
+                    />
+                    <input
+                        id="newHospitalBeds"
+                        type="number"
+                        placeholder="Total Beds Available"
+                        required
+                        min="0"
+                    />
+                    <select id="newHospitalSpec">
+                        <option value="GENERAL">General</option>
+                        <option value="HEART">Cardiology (Heart)</option>
+                        <option value="TRAUMA">Trauma (Emergency)</option>
+                        <option value="PREGNANCY">Pregnancy</option>
+                        <option value="NEURO">Neuro</option>
+                    </select>
+                    <select id="newHospitalType">
+                        <option value="GOVERNMENT">Government</option>
+                        <option value="PRIVATE">Private</option>
+                    </select>
+                    <button id="addHospitalMapBtn">
+                        Select Location on Map
+                    </button>
+                    <div
+                        class="actions-row"
+                        style="display: flex; gap: 10px; margin-top: 10px"
+                    >
+                        <button id="addHospitalSubmitBtn" disabled>
+                            Submit
+                        </button>
+                        <button
+                            id="addHospitalCancelBtn"
+                            style="background: #dc2626"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                    <div
+                        id="addHospitalResult"
+                        style="margin-top: 10px; font-size: 14px"
+                    ></div>
+                </div>
+
+                <div class="card" id="addAmbulanceCard">
+                    <h2>Register Rescue Vehicle</h2>
+                    <input
+                        id="newAmbulanceCode"
+                        type="text"
+                        placeholder="Ambulance ID (Code)"
+                        required
+                    />
+                    <button id="addAmbulanceMapBtn">
+                        Select Initial Location on Map
+                    </button>
+                    <div
+                        class="actions-row"
+                        style="display: flex; gap: 10px; margin-top: 10px"
+                    >
+                        <button id="addAmbulanceSubmitBtn" disabled>
+                            Add Ambulance
+                        </button>
+                        <button
+                            id="addAmbulanceCancelBtn"
+                            style="background: #dc2626"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                    <div
+                        id="addAmbulanceResult"
+                        style="
+                            margin-top: 10px;
+                            font-size: 14px;
+                            font-weight: 500;
+                        "
+                    ></div>
+                </div>
+
+                <div class="card">
+                    <h2>Update Fleet Status</h2>
+                    <input
+                        id="ambulanceIdInput"
+                        type="text"
+                        placeholder="Ambulance Code (e.g. AMB001)"
+                    />
+                    <select id="ambulanceStatusInput">
+                        <option value="AVAILABLE">AVAILABLE</option>
+                        <option value="BUSY">BUSY</option>
+                    </select>
+                    <button id="updateAmbulanceBtn">Update Status</button>
+                </div>
+            </section>
+        </main>
+
+
+        <div
+            id="routeSelectionModal"
+            style="
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0, 0, 0, 0.6);
+                z-index: 9999;
+                justify-content: center;
+                align-items: center;
+            "
+        >
+            <div
+                style="
+                    background: white;
+                    padding: 24px;
+                    border-radius: 12px;
+                    width: 400px;
+                    text-align: center;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                "
+            >
+                <h2 style="margin-top: 0; margin-bottom: 20px; color: #1e293b">
+                    🚑 Select Route to Hospital
+                </h2>
+                <div
+                    id="routeOptionsContainer"
+                    style="display: flex; flex-direction: column; gap: 12px"
+                ></div>
+            </div>
         </div>
-      </div>
-      </div>
 
-      <!-- Add New Ambulance Card -->
-      <div class="card" id="addAmbulanceCard" style="margin-top: 15px;">
-        <h2>Add New Ambulance</h2>
-        <input id="newAmbulanceCode" type="text" placeholder="Ambulance ID (Code)" required />
-        <button id="addAmbulanceMapBtn">Select Initial Location on Map</button>
-        <div class="actions-row" style="display: flex; gap: 10px; margin-top: 10px;">
-          <button id="addAmbulanceSubmitBtn" disabled>Add Ambulance</button>
-          <button id="addAmbulanceCancelBtn" style="background: #dc2626;">Cancel</button>
+
+        <div
+            id="handoverModal"
+            style="
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0, 0, 0, 0.85);
+                z-index: 10000;
+                justify-content: center;
+                align-items: center;
+            "
+        >
+            <div
+                style="
+                    background: white;
+                    padding: 32px;
+                    border-radius: 12px;
+                    width: 400px;
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+                "
+            >
+                <h2
+                    style="
+                        margin-top: 0;
+                        margin-bottom: 8px;
+                        color: #b91c1c;
+                        text-align: center;
+                    "
+                >
+                    🚨 Patient Handover & Admission
+                </h2>
+                <p
+                    style="
+                        text-align: center;
+                        color: #64748b;
+                        font-size: 14px;
+                        margin-bottom: 20px;
+                    "
+                >
+                    Please finalize the patient's admission details to securely
+                    log the handover before returning to the main dashboard.
+                </p>
+
+                <div class="form-group" style="margin-bottom: 12px">
+                    <label
+                        style="
+                            font-size: 14px;
+                            color: #475569;
+                            font-weight: 600;
+                        "
+                        >Patient Name</label
+                    >
+                    <input
+                        type="text"
+                        id="patientName"
+                        placeholder="e.g., John Doe"
+                        style="
+                            width: 100%;
+                            padding: 8px;
+                            border: 1px solid #cbd5e1;
+                            border-radius: 4px;
+                        "
+                        required
+                    />
+                </div>
+                <div class="form-group" style="margin-bottom: 12px">
+                    <label
+                        style="
+                            font-size: 14px;
+                            color: #475569;
+                            font-weight: 600;
+                        "
+                        >Admitted By (Person Name)</label
+                    >
+                    <input
+                        type="text"
+                        id="admittedBy"
+                        placeholder="e.g., Jane Smith"
+                        style="
+                            width: 100%;
+                            padding: 8px;
+                            border: 1px solid #cbd5e1;
+                            border-radius: 4px;
+                        "
+                        required
+                    />
+                </div>
+                <div class="form-group" style="margin-bottom: 12px">
+                    <label
+                        style="
+                            font-size: 14px;
+                            color: #475569;
+                            font-weight: 600;
+                        "
+                        >Admitter Phone No</label
+                    >
+                    <input
+                        type="tel"
+                        id="admitterPhone"
+                        placeholder="e.g., +91 9876543210"
+                        style="
+                            width: 100%;
+                            padding: 8px;
+                            border: 1px solid #cbd5e1;
+                            border-radius: 4px;
+                        "
+                        required
+                    />
+                </div>
+                <div style="display: flex; gap: 12px; margin-bottom: 20px">
+                    <div class="form-group" style="flex: 1">
+                        <label
+                            style="
+                                font-size: 14px;
+                                color: #475569;
+                                font-weight: 600;
+                            "
+                            >Age</label
+                        >
+                        <input
+                            type="number"
+                            id="age"
+                            min="0"
+                            placeholder="e.g., 45"
+                            style="
+                                width: 100%;
+                                padding: 8px;
+                                border: 1px solid #cbd5e1;
+                                border-radius: 4px;
+                            "
+                            required
+                        />
+                    </div>
+                    <div class="form-group" style="flex: 1">
+                        <label
+                            style="
+                                font-size: 14px;
+                                color: #475569;
+                                font-weight: 600;
+                            "
+                            >Hospital ID</label
+                        >
+                        <input
+                            type="number"
+                            id="handoverHospitalId"
+                            readonly
+                            style="
+                                width: 100%;
+                                padding: 8px;
+                                background: #f1f5f9;
+                                border: 1px solid #cbd5e1;
+                                border-radius: 4px;
+                                color: #64748b;
+                                font-weight: bold;
+                            "
+                        />
+                    </div>
+                </div>
+
+                <button
+                    id="handoverBtn"
+                    style="
+                        width: 100%;
+                        background: #22c55e;
+                        color: white;
+                        border: none;
+                        padding: 12px;
+                        border-radius: 6px;
+                        font-weight: bold;
+                        cursor: pointer;
+                        font-size: 15px;
+                    "
+                >
+                    Finalize & Submit Handover
+                </button>
+                <div
+                    id="handoverResult"
+                    style="
+                        margin-top: 15px;
+                        text-align: center;
+                        color: #b91c1c;
+                        font-weight: 500;
+                        font-size: 14px;
+                    "
+                ></div>
+            </div>
         </div>
-        <div id="addAmbulanceResult" style="margin-top: 10px; font-size: 14px; font-weight: 500;"></div>
-      </div>
-    </section>
 
-    <section class="map-panel">
-      <div id="map"></div>
-    </section>
 
-    <section class="right-panel">
-      <div class="card">
-        <h2>Admin Dashboard</h2>
-        <div class="stats">
-          <div class="stat"><span>Total Hospitals</span><strong id="totalHospitals">-</strong></div>
-          <div class="stat"><span>Hospitals With Beds</span><strong id="hospitalsWithBeds">-</strong></div>
-          <div class="stat"><span>Available Ambulances</span><strong id="availableAmbulances">-</strong></div>
+        <div
+            id="rideSummaryModal"
+            style="
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0, 0, 0, 0.6);
+                z-index: 10000;
+                justify-content: center;
+                align-items: center;
+            "
+        >
+            <div
+                style="
+                    background: white;
+                    padding: 24px;
+                    border-radius: 12px;
+                    width: 380px;
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+                    text-align: center;
+                "
+            >
+                <h2
+                    style="
+                        margin-top: 0;
+                        color: #1e3a8a;
+                        border-bottom: 2px solid #e2e8f0;
+                        padding-bottom: 12px;
+                    "
+                >
+                    ✅ Ride Completed
+                </h2>
+
+                <div
+                    style="
+                        text-align: left;
+                        background: #f8fafc;
+                        padding: 15px;
+                        border-radius: 8px;
+                        margin: 15px 0;
+                    "
+                >
+                    <p style="margin: 8px 0; font-size: 14px">
+                        <strong>Booking Time:</strong>
+                        <span id="summaryBookingTime">-</span>
+                    </p>
+                    <p style="margin: 8px 0; font-size: 14px">
+                        <strong>Source:</strong>
+                        <span id="summarySource">-</span>
+                    </p>
+                    <p style="margin: 8px 0; font-size: 14px">
+                        <strong>Destination:</strong>
+                        <span id="summaryDestination">-</span>
+                    </p>
+                    <p style="margin: 8px 0; font-size: 14px">
+                        <strong>Journey Duration:</strong>
+                        <span id="summaryTotalTime">-</span>
+                    </p>
+                    <p style="margin: 8px 0; font-size: 14px">
+                        <strong>Driver Name:</strong>
+                        <span id="summaryRiderName">-</span>
+                    </p>
+                    <p style="margin: 8px 0; font-size: 14px">
+                        <strong>Total Fare:</strong>
+                        <span id="summaryCost">-</span>
+                    </p>
+                </div>
+
+                <button
+                    id="closeSummaryBtn"
+                    style="
+                        width: 100%;
+                        background: #3b82f6;
+                        color: white;
+                        border: none;
+                        padding: 10px;
+                        border-radius: 6px;
+                        font-weight: bold;
+                        cursor: pointer;
+                    "
+                >
+                    Close & Return to Map
+                </button>
+            </div>
         </div>
-      </div>
 
-      <div class="card">
-        <h2>Hospital Bed Update</h2>
-        <input id="hospitalIdInput" type="number" placeholder="Hospital ID" />
-        <input id="bedsInput" type="number" placeholder="Available Beds" />
-        <button id="updateBedsBtn">Update Beds</button>
-      </div>
 
-      <div class="card" id="addHospitalCard">
-        <h2>Add New Hospital</h2>
-        <input id="newHospitalId" type="number" placeholder="Hospital ID" required />
-        <input id="newHospitalName" type="text" placeholder="Hospital Name" required />
-        <input id="newHospitalBeds" type="number" placeholder="Total Beds Available" required min="0" />
-        <select id="newHospitalSpec">
-          <option value="GENERAL">General</option>
-          <option value="HEART">Cardiology (Heart)</option>
-          <option value="TRAUMA">Trauma (Emergency)</option>
-          <option value="PREGNANCY">Pregnancy</option>
-          <option value="NEURO">Neuro</option>
-        </select>
-        <select id="newHospitalType">
-          <option value="GOVERNMENT">Government</option>
-          <option value="PRIVATE">Private</option>
-        </select>
-        <button id="addHospitalMapBtn">Select Location on Map</button>
-        <div class="actions-row" style="display: flex; gap: 10px; margin-top: 10px;">
-          <button id="addHospitalSubmitBtn" disabled>Submit</button>
-          <button id="addHospitalCancelBtn" style="background: #dc2626;">Cancel</button>
-        </div>
-        <div id="addHospitalResult" style="margin-top: 10px; font-size: 14px;"></div>
-      </div>
+        <audio
+            id="successSound"
+            src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"
+            preload="auto"
+        ></audio>
+        <audio
+            id="alertSound"
+            src="https://assets.mixkit.co/active_storage/sfx/2870/2870-preview.mp3"
+            preload="auto"
+        ></audio>
 
-      <div class="card">
-        <h2>Ambulance Status Update</h2>
-        <input id="ambulanceIdInput" type="text" placeholder="Ambulance Code (e.g. AMB001)" />
-        <select id="ambulanceStatusInput">
-          <option value="AVAILABLE">AVAILABLE</option>
-          <option value="BUSY">BUSY</option>
-        </select>
-        <button id="updateAmbulanceBtn">Update Status</button>
-      </div>
-    </section>
-  </main>
-
-  <!-- Route Selection Modal -->
-  <div id="routeSelectionModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center;">
-    <div style="background: white; padding: 24px; border-radius: 12px; width: 400px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
-      <h2 style="margin-top: 0; margin-bottom: 20px; color: #1e293b;">🚑 Select Route to Hospital</h2>
-      <div id="routeOptionsContainer" style="display: flex; flex-direction: column; gap: 12px;"></div>
-    </div>
-  </div>
-
-  <!-- Mandatory Handover Modal -->
-  <div id="handoverModal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 10000; justify-content: center; align-items: center;">
-    <div style="background: white; padding: 32px; border-radius: 12px; width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
-      <h2 style="margin-top: 0; margin-bottom: 8px; color: #b91c1c; text-align: center;">🚨 Patient Handover Required</h2>
-      <p style="text-align: center; color: #64748b; font-size: 14px; margin-bottom: 20px;">The system is locked until patient admission details are securely filed and finalized.</p>
-      
-      <div class="form-group" style="margin-bottom: 12px;">
-        <label style="font-size: 14px; color: #475569; font-weight: 600;">Patient Name</label>
-        <input type="text" id="patientName" placeholder="e.g., John Doe" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;" required />
-      </div>
-      <div class="form-group" style="margin-bottom: 12px;">
-        <label style="font-size: 14px; color: #475569; font-weight: 600;">Admitted By (Person Name)</label>
-        <input type="text" id="admittedBy" placeholder="e.g., Jane Smith" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;" required />
-      </div>
-      <div class="form-group" style="margin-bottom: 12px;">
-        <label style="font-size: 14px; color: #475569; font-weight: 600;">Admitter Phone No</label>
-        <input type="tel" id="admitterPhone" placeholder="e.g., +91 9876543210" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;" required />
-      </div>
-      <div style="display: flex; gap: 12px; margin-bottom: 20px;">
-        <div class="form-group" style="flex: 1;">
-          <label style="font-size: 14px; color: #475569; font-weight: 600;">Age</label>
-          <input type="number" id="age" min="0" placeholder="e.g., 45" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;" required />
-        </div>
-        <div class="form-group" style="flex: 1;">
-          <label style="font-size: 14px; color: #475569; font-weight: 600;">Hospital ID</label>
-          <input type="number" id="handoverHospitalId" readonly style="width: 100%; padding: 8px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 4px; color: #64748b; font-weight: bold;" />
-        </div>
-      </div>
-      
-      <button id="handoverBtn" style="width: 100%; background: #22c55e; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 15px;">Finalize & Submit Handover</button>
-      <div id="handoverResult" style="margin-top: 15px; text-align: center; color: #b91c1c; font-weight: 500; font-size: 14px;"></div>
-    </div>
-  </div>
-
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="./script.js?v=3"></script>
-</body>
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <script src="./script.js?v=4"></script>
+    </body>
 </html>
