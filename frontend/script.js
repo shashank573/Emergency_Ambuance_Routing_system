@@ -1,4 +1,4 @@
-const BACKEND_URL = "http://localhost:8080";
+const BACKEND_URL = "https://ambulance-backend-fnc9.onrender.com";
 
 const map = L.map("map").setView([28.6, 77.2], 11);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
